@@ -1,20 +1,15 @@
-const functions = require('firebase-functions');
-var admin = require('firebase-admin');
+const Functions = require('firebase-functions');
+const Express = require('./Adapters/Server/Express');
+const FireSrote = require('./Adapters/Database/FireStore');
+const ServerRepository = require('./Repositories/ServerReposiry');
+const DataBaseRepositry = require('./Repositories/DatabaseRepository'); 
 
-var express = require('express');
-var app = express();
+const firestore = new FireSrote();
+const dataBaseRepository = new DataBaseRepositry(firestore)
 
-const bodyParser = require('body-parser');
-const cors = require('cors');
-
-app.use(bodyParser.text());
-app.use(bodyParser.json());
-app.use(cors());
-
-
-app.get('/', function (req, res) {
-    res.send('The api works');
-});
-  
-exports.app = functions.https.onRequest(app);
+const express = new Express(dataBaseRepository);
+const serverReposiry = new ServerRepository(express);
+serverReposiry.itializeServer();
+ 
+exports.app = Functions.https.onRequest(serverReposiry.server.app); //this is for firebase function
 
